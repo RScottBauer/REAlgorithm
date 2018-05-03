@@ -5,4 +5,4 @@ Real Estate Algorithm using Multiple Regression Analysis to construct Expected R
 
 Writen in Python with data from a MongoDB Database
 
-Data from Attom Data Solutions
+Data from Attom Data Solutions via RESTful API
