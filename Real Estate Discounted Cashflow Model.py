@@ -26,7 +26,7 @@ mortgageammount = marketprice * (1-downpaymentpercentage)
 monthlymortgage = mortgageammount*(monthlyapr*((1+monthlyapr)**(numberofmonths)))/(((1+monthlyapr)**(numberofmonths))-1) #"mortgage ammount"
 mortgagepoints = 0.02 #Percentage of Mortgage charged by lender at time of loan
 mortgagefee = 500 #Paperwork and other one time fees charged by lender
-totalmortfee = mortgagefee + mortgagepoints
+totalmortfee = mortgagefee + (mortgagepoints*mortgageammount)
 mortinsurance = (0.005*mortgageammount)/12
 resamortize = 30 #Number of years to amortize residentail property
 commamortize = 20 #Number of years to amortize commercial property
@@ -59,9 +59,13 @@ unrentedfee = ((bills+propmanagefee)*0.5) #"sum of montly fees when the property
 insurance = 75 #"monthly home insurance and other insurance"
 
 #Expected Taxes
-depreciation = (marketprice+repaircost)/27.5 #Federal Straitline Depreciation
+depreciation = ((marketprice*0.75)+repaircost+closingcost)/27.5 #Federal Straitline Depreciation with land value removed
 proptax = (marketprice+repaircost)*0.8*0.02 #"annual property tax"
 semiprop = proptax/2 #semi annual property tax due
+taxnormmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage*0.75
+quarterly = (depreciation + proptax + (taxnormmonth*11) + unrentedfee)/4
+taxincome = (rent*11)/4
+fedtaxnet = (taxincome - quarterly)*0.8*0.35
 
 #Dates
 proptaxdate = 4 #Month of first property tax payment of the year
@@ -81,19 +85,32 @@ value = 0
 fedtax = 0
 n=1
 normmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage
-while n <= numberofmonths: 
+while n <= numberofmonths:
+    #Year Counter
     if n % 12 == 0:
         year += 1
-    if n-(12*year)==proptaxdate or n-(12*year)==proptaxfrequency:
+    #Removing number of vacant months per year
+    if n-(12*year) == (12-vacancy):
+        vacancycost = -1*(rent+unrentedfee)*vacancy
+    else:
+        vacancycost = 0
+    #Quarterly Federal Estimted Tax Payments
+    if n-(12*year) == 1 or n-(12*year) == 4 or n-(12*year) == 7 or n-(12*year) == 10:
+        fedtax = fedtaxnet
+    else:
+        fedtax = 0
+    #Twice Yearly Property Tax Payment
+    if n-(12*year) == proptaxdate or n-(12*year) == (proptaxdate+proptaxfrequency):
         propertytaxexpense = semiprop
     else:
         propertytaxexpense = 0
-    expense = propertytaxexpense + fedtax + normmonth
+    #Summation of Present Values of Cashflows
+    expense = propertytaxexpense + fedtax + normmonth + vacancycost
     income = rent
     value += (income-expense)/(((1+monthlydiscount)**n)-1)
     n += 1
 
-print(year)
 print(value)
-    
+print(value-paidprice)
+
     
