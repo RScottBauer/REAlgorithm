@@ -6,7 +6,7 @@ Created on Fri May 11 16:43:01 2018
 """
 
 #Discounted Cashflow Model for Pricing Rental Properties
-
+#Any Vlaues can be Changed, Descriptions provided for possibly unclear variables
 #Expected Price to Buy Property At
 marketprice = 200000#"This will come from the property database"
 paidprice = 150000#"price I expect to pay for the property"
@@ -54,7 +54,7 @@ propmanagefee = rent*.10#monthly fee for property manager
 bills = 200 #montly utility and upkeep bills
 othermonthly = 0 #"monthly fees i havent thought of"
 monthlyhoafee = HOAfee/12
-montlycapx = capx/12
+monthlycapx = capx/12
 unrentedfee = ((bills+propmanagefee)*0.5) #"sum of montly fees when the property is vacant"
 insurance = 75 #"monthly home insurance and other insurance"
 
@@ -64,8 +64,6 @@ proptax = (marketprice+repaircost)*0.8*0.02 #"annual property tax"
 semiprop = proptax/2 #semi annual property tax due
 
 #Dates
-HOAdate = 0 #"Date of first HOA fee"
-HOAfrequency = 3 #"how far apart in months are the hoa fees"
 proptaxdate = 4 #Month of first property tax payment of the year
 proptaxfrequency = 6 #How many months between property tax payments
 
@@ -80,12 +78,19 @@ monthlydiscount = ((discountrate+1)**(1/12))-1
 #presets
 year = 0
 value = 0
+fedtax = 0
 n=1
-while n <= numberofmonths:
+normmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage
+while n <= numberofmonths: 
     if n % 12 == 0:
         year += 1
-    if n-(12*year)==4 or n-(12*year)==10:
-        value += 1
+    if n-(12*year)==proptaxdate or n-(12*year)==proptaxfrequency:
+        propertytaxexpense = semiprop
+    else:
+        propertytaxexpense = 0
+    expense = propertytaxexpense + fedtax + normmonth
+    income = rent
+    value += (income-expense)/(((1+monthlydiscount)**n)-1)
     n += 1
 
 print(year)
