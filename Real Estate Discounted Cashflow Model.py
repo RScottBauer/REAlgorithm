@@ -2,10 +2,10 @@
 """
 Created on Fri May 11 16:43:01 2018
 
-@author: Scott Bauer
+@author: Robert Bauer
 """
 
-#Discounted Cashflow Model for Pricing Rental Properties
+#Discounted Cashflow Model for Pricing Rental Properties for LLCs
 #Any Vlaues can be Changed, Descriptions provided for possibly unclear variables
 #Expected Price to Buy Property At
 marketprice = 200000#"This will come from the property database"
@@ -56,61 +56,78 @@ othermonthly = 0 #"monthly fees i havent thought of"
 monthlyhoafee = HOAfee/12
 monthlycapx = capx/12
 unrentedfee = ((bills+propmanagefee)*0.5) #"sum of montly fees when the property is vacant"
-insurance = 75 #"monthly home insurance and other insurance"
+insurance = 150 #"monthly home insurance and other insurance"
+normmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage
 
 #Expected Taxes
 depreciation = ((marketprice*0.75)+repaircost+closingcost)/27.5 #Federal Straitline Depreciation with land value removed
 proptax = (marketprice+repaircost)*0.8*0.02 #"annual property tax"
 semiprop = proptax/2 #semi annual property tax due
-taxnormmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage*0.75
-quarterly = (depreciation + proptax + (taxnormmonth*11) + unrentedfee)/4
-taxincome = (rent*11)/4
-fedtaxnet = (taxincome - quarterly)*0.8*0.35
 
 #Dates
 proptaxdate = 4 #Month of first property tax payment of the year
 proptaxfrequency = 6 #How many months between property tax payments
-
 
 #Required Discount Rates
 requiredrate = 0.20 #investors required rate of return
 discountrate = requiredrate + inflation
 monthlydiscount = ((discountrate+1)**(1/12))-1
 
+
+
+
+
 #Now the actual Calculation
+#Mortgage interest and principal over time
+def mortdict( mortgage, interestrate, time):
+    x = 0
+    mortinterest = {}
+    while x <= time:
+        mortinterest[x] = ((mortgage*(((1+interestrate)**time)-(1+interestrate)**x))/(((1+interestrate)**time)-1))*interestrate
+        x += 1
+    return mortinterest   
+
+#tax calculations
+taxnormmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage*0.5
+quarterly = (depreciation + proptax + (taxnormmonth*(12-vacancy)) + unrentedfee)/4
+taxincome = (rent*(12-vacancy))/4
 
 #presets
 year = 0
 value = 0
 fedtax = 0
 n=1
-normmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage
 while n <= numberofmonths:
-    #Year Counter
-    if n % 12 == 0:
-        year += 1
     #Removing number of vacant months per year
     if n-(12*year) == (12-vacancy):
         vacancycost = -1*(rent+unrentedfee)*vacancy
     else:
         vacancycost = 0
-    #Quarterly Federal Estimted Tax Payments
-    if n-(12*year) == 1 or n-(12*year) == 4 or n-(12*year) == 7 or n-(12*year) == 10:
-        fedtax = fedtaxnet
+        
+    #Quarterly Federal Estimted Tax Payments   
+    if n % 12 == 1 or n % 12 == 4 or n % 12 == 7 or n % 12 == 10:
+        if (taxincome-quarterly) < 0:
+            fednettax = (taxincome-quarterly)
+        else:
+            fednettax = (taxincome-quarterly)*0.35
+        fedtax = fednettax
     else:
         fedtax = 0
+        
     #Twice Yearly Property Tax Payment
-    if n-(12*year) == proptaxdate or n-(12*year) == (proptaxdate+proptaxfrequency):
+    if n % 12 == proptaxdate or n % 12 == (proptaxdate+proptaxfrequency):
         propertytaxexpense = semiprop
     else:
         propertytaxexpense = 0
+        
     #Summation of Present Values of Cashflows
     expense = propertytaxexpense + fedtax + normmonth + vacancycost
     income = rent
     value += (income-expense)/(((1+monthlydiscount)**n)-1)
     n += 1
 
-print(value)
-print(value-paidprice)
+#principal = (mortgageammount*(((1+monthlyapr)**numberofmonths)-((1+monthlyapr)**n)))/(((1+monthlyapr)**numberofmonths)-1)
 
-    
+print(value)
+test = value - marketprice
+print(test)
