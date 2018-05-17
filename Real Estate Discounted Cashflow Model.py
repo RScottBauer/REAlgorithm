@@ -79,17 +79,15 @@ monthlydiscount = ((discountrate+1)**(1/12))-1
 
 #Now the actual Calculation
 #Mortgage interest and principal over time
-def mortdict( mortgage, interestrate, time):
-    x = 0
-    mortinterest = {}
-    while x <= time:
-        mortinterest[x] = ((mortgage*(((1+interestrate)**time)-(1+interestrate)**x))/(((1+interestrate)**time)-1))*interestrate
-        x += 1
-    return mortinterest   
-
+x = 0
+mortinterest = {}
+while x <= numberofmonths:
+    mortinterest[x] = (mortgageammount*(((1+monthlyapr)**numberofmonths)-((1+monthlyapr)**x))/(((1+monthlyapr)**numberofmonths)-1))*monthlyapr
+    x += 1
+    
 #tax calculations
-taxnormmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance + monthlymortgage*0.5
-quarterly = (depreciation + proptax + (taxnormmonth*(12-vacancy)) + unrentedfee)/4
+taxnormmonth = bills + propmanagefee + insurance + monthlycapx + monthlyhoafee + othermonthly + mortinsurance
+quarterly = (depreciation + proptax + (taxnormmonth*(12-vacancy)) + (unrentedfee*(vacancy)))/4
 taxincome = (rent*(12-vacancy))/4
 
 #presets
@@ -98,18 +96,37 @@ value = 0
 fedtax = 0
 n=1
 while n <= numberofmonths:
+    if n % 12 == 0:
+        year += 1 
     #Removing number of vacant months per year
-    if n-(12*year) == (12-vacancy):
+    if n % 12 == (12-vacancy):
         vacancycost = -1*(rent+unrentedfee)*vacancy
     else:
-        vacancycost = 0
-        
+        vacancycost = 0       
     #Quarterly Federal Estimted Tax Payments   
-    if n % 12 == 1 or n % 12 == 4 or n % 12 == 7 or n % 12 == 10:
+    if n-(12*(year-1)) == 1: 
         if (taxincome-quarterly) < 0:
-            fednettax = (taxincome-quarterly)
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])
         else:
-            fednettax = (taxincome-quarterly)*0.35
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])*0.35
+        fedtax = fednettax
+    elif n-(12*year) == 4:
+        if (taxincome-quarterly) < 0:
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])
+        else:
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])*0.35
+        fedtax = fednettax
+    elif n-(12*year) == 7:
+        if (taxincome-quarterly) < 0:
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])
+        else:
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])*0.35
+        fedtax = fednettax
+    elif n-(12*year) == 10:
+        if (taxincome-quarterly) < 0:
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])
+        else:
+            fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])*0.35
         fedtax = fednettax
     else:
         fedtax = 0
@@ -131,3 +148,4 @@ while n <= numberofmonths:
 print(value)
 test = value - marketprice
 print(test)
+
