@@ -126,7 +126,7 @@ while n <= numberofmonths:
     runningtotal[n-1] = value
     n += 1
     
-    
+#adding an extra comment for testing purposes
 #principal = (mortgageammount*(((1+monthlyapr)**numberofmonths)-((1+monthlyapr)**n)))/(((1+monthlyapr)**numberofmonths)-1)
 value = value - closingcost - repaircost - totalmortfee
 test = value - (downpayment + closingcost + repaircost + totalmortfee)
