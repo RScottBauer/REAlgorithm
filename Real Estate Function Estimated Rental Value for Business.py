@@ -12,11 +12,14 @@ db = client.admin
 #rent from rent guessing algorithm
 
 def ERV(price, expectedrent, propid):
+
+#Remove this entire area in favor of a Database stored version of the information
+#Simply use the information from the database and input it into the second set of variables
     marketprice = price
     rent = expectedrent
     apr = .0485 #loan apr
     mortlength = 30 #Number of years on the mortgage
-    downpaymentpercentage = 0.1 #your downpayment percentage 
+    downpaymentpercentage = 0.1 #your downpayment percentage
     mortgagepoints = 0.02 #Percentage of Mortgage charged by lender at time of loan
     mortgagefee = 500 #Paperwork and other one time fees charged by lender
     inflation = 0.03 #rate of inflation yearly
@@ -61,7 +64,7 @@ def ERV(price, expectedrent, propid):
     while x <= numberofmonths:
         mortinterest[x] = (mortgageammount*(((1+monthlyapr)**numberofmonths)-((1+monthlyapr)**x))/(((1+monthlyapr)**numberofmonths)-1))*monthlyapr
         x += 1
-    
+
     year = 0
     value = 0
     fedtax = 0
@@ -69,14 +72,14 @@ def ERV(price, expectedrent, propid):
     runningtotal = {}
     while n <= numberofmonths:
         if n % 12 == 0:
-            year += 1 
+            year += 1
         #Removing number of vacant months per year
         if n % 12 == (12-vacancy):
             vacancycost = -1*(rent+unrentedfee)*vacancy
         else:
-            vacancycost = 0       
-        #Quarterly Federal Estimted Tax Payments   
-        if n-((12*(year-1))-12) == 1: 
+            vacancycost = 0
+        #Quarterly Federal Estimted Tax Payments
+        if n-((12*(year-1))-12) == 1:
             if (taxincome-quarterly) < 0:
                 fednettax = (taxincome-(quarterly+mortinterest[n-1]+mortinterest[n-2])+mortinterest[n-3]+mortinterest[n-4])
             else:
@@ -102,13 +105,13 @@ def ERV(price, expectedrent, propid):
             fedtax = fednettax
         else:
             fedtax = 0
-            
+
         #Twice Yearly Property Tax Payment
         if n % 12 == proptaxdate or n % 12 == (proptaxdate+proptaxfrequency):
             propertytaxexpense = semiprop
         else:
             propertytaxexpense = 0
-            
+
         #Summation of Present Values of Cashflows
         expense = (propertytaxexpense + fedtax + normmonth + vacancycost)*((1+(expensegrowth/12))**n)
         income = rent*((1+(incomegrowth/12))**n)
@@ -122,11 +125,10 @@ def ERV(price, expectedrent, propid):
         properties = {
                 'propid' : propid,
                 'valuve' : value,
-                'residual' : test 
+                'residual' : test
                 }
         result=db.prop.insert_one(properties)
-        
 
-    
+
+
 ERV(200000, 3000, 123)
-
