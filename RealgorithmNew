@@ -1,0 +1,104 @@
+"""
+Robert Bauer
+New Realgorithm Test
+Running 3 Different Iterations Over CFs for Monthly & Semiannual Cashflows, Quarterly(Taxes), and Annual(Taxes)
+"""
+#import pymongo and set database targets
+import pymongo as pm
+
+#Creating Dictionary for Cashflows to be stored in 10 Years worth
+CFs = {}
+M = 0
+while x < 123:
+    x += 1
+    CFs[x] = 0
+
+print CFs
+
+#Final Property Value Variable
+Price = "Expected Market Price of Property" "Get from Database"
+MOS = 0.20 "Margin of Saftey off 'Market Price'/'Bank Appraisal Value' in order to Purchase Home" "Get from Datbase"
+RenovationRate = 0.10 "Get from Database"
+ERV = 0
+DiscountRate = 0.10 "Get from Database"
+InsuranceRate = 0.00035 "Get from Database"#Monthly Insurance Rate as a ratio of price
+#Variables from database
+ExpectedRent = "Total Proprety Rent from database"
+#Starting Month
+CurrentMonth = "The Current Month"
+#Month Number of current forecasted month
+MonthNum = "referenceing current iteration of CFs (something like x in CFs on the global iteration)"
+#Month being forecasted at the moment
+RentMonth = (MonthNum + CurrentMonth) % 12
+#Seasonal Penalties for Comming Year's Rent
+SeasonalRates = {1:0.9,2:0.95,3:0.95,4:0.95,5:1,6:1,7:1,8:0.95,9:0.95,10:0.95,11:0.9,12:0.9} "Get from Database"
+#Seasonal Rate of month being forecasted
+SeasonalRate = SeasonalRates[RentMonth]
+#Mortgage Variables
+HardAPR = 0.10 "Get from Database"
+SoftAPR = 0.048 "Get from Database"
+MHAPR = HardAPR/12
+MSAPR = SoftAPR/12
+MortPoints = 0.02 "Get from Database"
+MortFees = 0.05 "Get From Database"
+HardMortYears = 5 "Get from database"
+SoftMortYears = 30 "Get from Database"
+DownPaymentPercentage = 0.10 "Get from Database"
+SMIR = 0.005 "Get from Datbase" #Soft Mortgage Insurance Rate
+
+#Mortgage Calculations Function
+Def Mortify():
+
+    MortgageCFs = {1:[0,0,0]}
+    SoftMortgageAmmount = Price*(1-DownPaymentPercentage)
+    HardMortgageAmmount = Price*(1-MOS) + RenovationRate*Price
+    SoftMortRemaining = "To Do"
+    HardMortRemaining = "To Do"
+    MortOver = SoftMortgageAmmount - HardMortRemaining
+    HardMortMonthly = HardMortgageAmmount*((MHAPR*((1+MHAPR)^(HardMortYears*12)))/(((1+MHAPR)^(HardMortYears*12))-1))
+    SoftMortMonthly = SoftMortgageAmmount*((MSAPR*((1+MSAPR)^(SoftMortYears*12)))/(((1+MSAPR)^(SoftMortYears*12))-1))
+
+    Return "Not Finished Yet"
+
+#Vacancy Test
+if MonthNum % 13 = 3
+    Vacancy = 0
+else
+    Vacancy = 1
+
+
+""""
+Iteration 2
+"""
+#Non Monthly Cashflows
+#Quarterly Variables (Quarterly Tax Estimate Payments)
+
+
+""""
+Iteration 3
+"""
+#Semiannual Variables
+PropertyTaxRate = 0.01 "Get from Datbase" #High but not Atypical Property Tax Rate
+
+
+""""
+Iteration 4
+""""
+#Annual Variables (Annual Income Tax Return)
+AnnualCashMod = 0
+#Annual Cashflow Test
+if MonthNum % 12 = 4 and MonthNum > 4:
+    AnnualCashMod = 1
+else
+    AnnualCashMod = 0
+
+
+
+""""
+Final Values
+"""
+#Present Value of CFs
+for y in CFs:
+    ERV += CFs[y]/((1+DiscountRate)^y)
+
+Print ERV
