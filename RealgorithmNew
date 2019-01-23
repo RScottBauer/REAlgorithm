@@ -49,15 +49,17 @@ SMIR = 0.005 "Get from Datbase" #Soft Mortgage Insurance Rate
 #Mortgage Calculations Function
 Def Mortify():
 
-    MortgageCFs = {1:[0,0,0]}
+    MortgageCFs = {}
     SoftMortgageAmmount = Price*(1-DownPaymentPercentage)
     HardMortgageAmmount = Price*(1-MOS) + RenovationRate*Price
     SoftMortRemaining = "To Do"
     HardMortRemaining = "To Do"
     MortOver = SoftMortgageAmmount - HardMortRemaining
-    HardMortMonthly = HardMortgageAmmount*((MHAPR*((1+MHAPR)^(HardMortYears*12)))/(((1+MHAPR)^(HardMortYears*12))-1))
-    SoftMortMonthly = SoftMortgageAmmount*((MSAPR*((1+MSAPR)^(SoftMortYears*12)))/(((1+MSAPR)^(SoftMortYears*12))-1))
-
+    HardMortMonthly = HardMortgageAmmount*MHAPR/(1-((1+MHAPR)^(-12*HardMortYears)))
+    SoftMortMonthly =SoftMortgageAmmount*MSAPR/(1-((1+MSAPR)^(-12*SoftMortYears)))
+    for x in range(2,9)
+        MortgageCFs[x] = ["Mort Payment","Remaining Principal","Interest Expense"]
+    for x in range(9,124)
     Return "Not Finished Yet"
 
 #Vacancy Test
