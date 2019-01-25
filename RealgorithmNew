@@ -9,9 +9,9 @@ import pymongo as pm
 #Creating Dictionary for Cashflows to be stored in 10 Years worth
 CFs = {}
 M = 0
-while x < 123:
-    x += 1
-    CFs[x] = 0
+while M < 123:
+    M += 1
+    CFs[M] = 0
 
 print CFs
 
@@ -47,20 +47,28 @@ DownPaymentPercentage = 0.10 "Get from Database"
 SMIR = 0.005 "Get from Datbase" #Soft Mortgage Insurance Rate
 
 #Mortgage Calculations Function
-Def Mortify():
-
+Def Mortify(Price):
+    MortStartMonth = 2 "Get From Database"
+    MortRefiMonth = 6 "Get From Database"
     MortgageCFs = {}
     SoftMortgageAmmount = Price*(1-DownPaymentPercentage)
     HardMortgageAmmount = Price*(1-MOS) + RenovationRate*Price
-    SoftMortRemaining = "To Do"
-    HardMortRemaining = "To Do"
     MortOver = SoftMortgageAmmount - HardMortRemaining
     HardMortMonthly = HardMortgageAmmount*MHAPR/(1-((1+MHAPR)^(-12*HardMortYears)))
-    SoftMortMonthly =SoftMortgageAmmount*MSAPR/(1-((1+MSAPR)^(-12*SoftMortYears)))
-    for x in range(2,9)
-        MortgageCFs[x] = ["Mort Payment","Remaining Principal","Interest Expense"]
-    for x in range(9,124)
-    Return "Not Finished Yet"
+    SoftMortMonthly = SoftMortgageAmmount*MSAPR/(1-((1+MSAPR)^(-12*SoftMortYears)))
+    HardRemainingPrincipal = HardMortgageAmmount * (1+MortFees+MortPoints)
+    SoftRemainingPrincipal = SoftMortgageAmmount * (1+MortFees+MortPoints)
+    for x in range(MortStartMonth,(MortStartMonth+MortRefiMonth))
+        InterstExpense = HardRemainingPrincipal * MHAPR
+        HardRemainingPrincipal -= HardMortMonthly - InterestExpense
+        MortgageCFs[x] = [HardMortMonthly,HardRemainingPrincipal,InterestExpense]
+    for x in range((MortStartMonth+MortRefiMonth),124)
+        InterstExpense = SoftRemainingPrincipal * MHAPR
+        SoftRemainingPrincipal -= HardMortMonthly - InterestExpense
+        MortgageCFs[x] = [SoftMortMonthly,SoftRemainingPrincipal,InterstExpense]
+
+    RefinancePayoff = [MortStartMonth + MortRefiMonth, MortOver]
+    Return MortgageCFs, RefinancePayoff
 
 #Vacancy Test
 if MonthNum % 13 = 3
@@ -68,7 +76,17 @@ if MonthNum % 13 = 3
 else
     Vacancy = 1
 
+#Semiannual Variables
 
+Def Proptax(Price) "Redo on the worst case scenario (i.e. immediatly after purhcase month) situaiton if unable to find a pattern or a common property tax date"
+    PropTaxCfs = {}
+    PropertyTaxRate = 0.01 "Get from Database" #High but not Atypical Property Tax Rate
+    for x in 123:
+        if X % 12 = 4
+            PropTaxCfs[x] = Price*PropertyTaxRate
+            PropTaxCfs[x+6] = Price*PropertyTaxRate
+        else
+            PropTaxCfs[x] = 0
 """"
 Iteration 2
 """
@@ -79,13 +97,6 @@ Iteration 2
 """"
 Iteration 3
 """
-#Semiannual Variables
-PropertyTaxRate = 0.01 "Get from Datbase" #High but not Atypical Property Tax Rate
-
-
-""""
-Iteration 4
-""""
 #Annual Variables (Annual Income Tax Return)
 AnnualCashMod = 0
 #Annual Cashflow Test
