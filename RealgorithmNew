@@ -16,40 +16,42 @@ while M < 123:
 print CFs
 
 #Final Property Value Variable
-Price = "Expected Market Price of Property" "Get from Database"
-MOS = 0.20 "Margin of Saftey off 'Market Price'/'Bank Appraisal Value' in order to Purchase Home" "Get from Datbase"
-RenovationRate = 0.10 "Get from Database"
+Price = #"Expected Market Price of Property" "Get from Database"
+MOS = 0.20 #"Margin of Saftey off 'Market Price'/'Bank Appraisal Value' in order to Purchase Home" "Get from Datbase"
+RenovationRate = 0.10 #"Get from Database"
 ERV = 0
-DiscountRate = 0.10 "Get from Database"
-InsuranceRate = 0.00035 "Get from Database"#Monthly Insurance Rate as a ratio of price
+DiscountRate = 0.10 #"Get from Database"
+InsuranceRate = 0.00035 #"Get from Database"#Monthly Insurance Rate as a ratio of price
 #Variables from database
-ExpectedRent = "Total Proprety Rent from database"
+ExpectedRent = #"Total Proprety Rent from database"
 #Starting Month
-CurrentMonth = "The Current Month"
+CurrentMonth = #"The Current Month"
 #Month Number of current forecasted month
-MonthNum = "referenceing current iteration of CFs (something like x in CFs on the global iteration)"
+MonthNum = #"referenceing current iteration of CFs (something like x in CFs on the global iteration)"
 #Month being forecasted at the moment
 RentMonth = (MonthNum + CurrentMonth) % 12
 #Seasonal Penalties for Comming Year's Rent
-SeasonalRates = {1:0.9,2:0.95,3:0.95,4:0.95,5:1,6:1,7:1,8:0.95,9:0.95,10:0.95,11:0.9,12:0.9} "Get from Database"
+SeasonalRates = {1:0.9,2:0.95,3:0.95,4:0.95,5:1,6:1,7:1,8:0.95,9:0.95,10:0.95,11:0.9,12:0.9} #"Get from Database"
 #Seasonal Rate of month being forecasted
 SeasonalRate = SeasonalRates[RentMonth]
 #Mortgage Variables
-HardAPR = 0.10 "Get from Database"
-SoftAPR = 0.048 "Get from Database"
+HardAPR = 0.10 #"Get from Database"
+SoftAPR = 0.048 #"Get from Database"
 MHAPR = HardAPR/12
 MSAPR = SoftAPR/12
-MortPoints = 0.02 "Get from Database"
-MortFees = 0.05 "Get From Database"
-HardMortYears = 5 "Get from database"
-SoftMortYears = 30 "Get from Database"
-DownPaymentPercentage = 0.10 "Get from Database"
-SMIR = 0.005 "Get from Datbase" #Soft Mortgage Insurance Rate
+MortPoints = 0.02 #"Get from Database"
+MortFees = 0.05 #"Get From Database"
+HardMortYears = 5 #"Get from database"
+SoftMortYears = 30 #"Get from Database"
+DownPaymentPercentage = 0.10 #"Get from Database"
+SMIR = 0.005 #"Get from Datbase" #Soft Mortgage Insurance Rate
+
+#Set of Functions Called in Iteration
 
 #Mortgage Calculations Function
 Def Mortify(Price):
-    MortStartMonth = 2 "Get From Database"
-    MortRefiMonth = 6 "Get From Database"
+    MortStartMonth = 2 #"Get From Database"
+    MortRefiMonth = 6 #"Get From Database"
     MortgageCFs = {}
     SoftMortgageAmmount = Price*(1-DownPaymentPercentage)
     HardMortgageAmmount = Price*(1-MOS) + RenovationRate*Price
@@ -70,33 +72,29 @@ Def Mortify(Price):
     RefinancePayoff = [MortStartMonth + MortRefiMonth, MortOver]
     Return MortgageCFs, RefinancePayoff
 
+#Property Tax Functions
+Def PropertyTaxes(Price)
+    PropTaxCfs = {}
+    PropertyTaxRate = 0.01 #"Get from Database" #High but not Atypical Property Tax Rate
+    for x in 123:
+        if X % 12 = 2
+            PropTaxCfs[x] = Price*PropertyTaxRate
+            PropTaxCfs[x+6] = Price*PropertyTaxRate
+        else
+            PropTaxCfs[x] = 0
+
 #Vacancy Test
 if MonthNum % 13 = 3
     Vacancy = 0
 else
     Vacancy = 1
 
-#Semiannual Variables
-
-Def Proptax(Price) "Redo on the worst case scenario (i.e. immediatly after purhcase month) situaiton if unable to find a pattern or a common property tax date"
-    PropTaxCfs = {}
-    PropertyTaxRate = 0.01 "Get from Database" #High but not Atypical Property Tax Rate
-    for x in 123:
-        if X % 12 = 4
-            PropTaxCfs[x] = Price*PropertyTaxRate
-            PropTaxCfs[x+6] = Price*PropertyTaxRate
-        else
-            PropTaxCfs[x] = 0
-""""
-Iteration 2
-"""
+#Iteration 2
 #Non Monthly Cashflows
 #Quarterly Variables (Quarterly Tax Estimate Payments)
 
 
-""""
-Iteration 3
-"""
+#Iteration 3
 #Annual Variables (Annual Income Tax Return)
 AnnualCashMod = 0
 #Annual Cashflow Test
@@ -107,9 +105,7 @@ else
 
 
 
-""""
-Final Values
-"""
+#Final Values
 #Present Value of CFs
 for y in CFs:
     ERV += CFs[y]/((1+DiscountRate)^y)
