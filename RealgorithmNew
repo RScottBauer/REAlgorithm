@@ -60,11 +60,11 @@ Def Mortify(Price):
     SoftMortMonthly = SoftMortgageAmmount*MSAPR/(1-((1+MSAPR)^(-12*SoftMortYears)))
     HardRemainingPrincipal = HardMortgageAmmount * (1+MortFees+MortPoints)
     SoftRemainingPrincipal = SoftMortgageAmmount * (1+MortFees+MortPoints)
-    for x in range(MortStartMonth,(MortStartMonth+MortRefiMonth))
+    for x in range(MortStartMonth,(MortStartMonth+MortRefiMonth)):
         InterstExpense = HardRemainingPrincipal * MHAPR
         HardRemainingPrincipal -= HardMortMonthly - InterestExpense
         MortgageCFs[x] = [HardMortMonthly,HardRemainingPrincipal,InterestExpense]
-    for x in range((MortStartMonth+MortRefiMonth),124)
+    for x in range((MortStartMonth+MortRefiMonth),124):
         InterstExpense = SoftRemainingPrincipal * MHAPR
         SoftRemainingPrincipal -= HardMortMonthly - InterestExpense
         MortgageCFs[x] = [SoftMortMonthly,SoftRemainingPrincipal,InterstExpense]
@@ -73,20 +73,20 @@ Def Mortify(Price):
     Return MortgageCFs, RefinancePayoff
 
 #Property Tax Functions
-Def PropertyTaxes(Price)
+Def PropertyTaxes(Price):
     PropTaxCfs = {}
     PropertyTaxRate = 0.01 #"Get from Database" #High but not Atypical Property Tax Rate
     for x in 123:
-        if X % 12 = 2
+        if X % 12 = 2:
             PropTaxCfs[x] = Price*PropertyTaxRate
             PropTaxCfs[x+6] = Price*PropertyTaxRate
-        else
+        else:
             PropTaxCfs[x] = 0
 
 #Vacancy Test
-if MonthNum % 13 = 3
+if MonthNum % 13 = 3:
     Vacancy = 0
-else
+else:
     Vacancy = 1
 
 #Iteration 2
@@ -100,7 +100,7 @@ AnnualCashMod = 0
 #Annual Cashflow Test
 if MonthNum % 12 = 4 and MonthNum > 4:
     AnnualCashMod = 1
-else
+else:
     AnnualCashMod = 0
 
 
