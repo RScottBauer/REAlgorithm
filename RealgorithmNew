@@ -51,27 +51,27 @@ SMIR = 0.005 #"Get from Datbase" #Soft Mortgage Insurance Rate
 
 #Set of Functions Called in Iteration
 
-#Mortgage Calculations Function
+#Mortgage Calculations Function NOT FINISHED NEEDS TO ITERATE OVER ITSELF
 def Mortify(Price):
     MortStartMonth = 2 #"Get From Database"
     MortRefiMonth = 6 #"Get From Database"
     MortgageCFs = {}
     SoftMortgageAmmount = Price*(1-DownPaymentPercentage)
     HardMortgageAmmount = Price*(1-MOS) + RenovationRate*Price
-    MortOver = SoftMortgageAmmount - HardMortRemaining
     HardMortMonthly = HardMortgageAmmount*MHAPR/(1-((1+MHAPR)^(-12*HardMortYears)))
     SoftMortMonthly = SoftMortgageAmmount*MSAPR/(1-((1+MSAPR)^(-12*SoftMortYears)))
     HardRemainingPrincipal = HardMortgageAmmount * (1+MortFees+MortPoints)
     SoftRemainingPrincipal = SoftMortgageAmmount * (1+MortFees+MortPoints)
     for x in range(MortStartMonth,(MortStartMonth+MortRefiMonth)):
-        InterstExpense = HardRemainingPrincipal * MHAPR
+        InterestExpense = HardRemainingPrincipal * MHAPR
         HardRemainingPrincipal -= HardMortMonthly - InterestExpense
         MortgageCFs[x] = [HardMortMonthly,HardRemainingPrincipal,InterestExpense]
     for x in range((MortStartMonth+MortRefiMonth),124):
-        InterstExpense = SoftRemainingPrincipal * MHAPR
+        InterestExpense = SoftRemainingPrincipal * MHAPR
         SoftRemainingPrincipal -= HardMortMonthly - InterestExpense
         MortgageCFs[x] = [SoftMortMonthly,SoftRemainingPrincipal,InterstExpense]
-
+    HardMortRemaining = MortgageCFs[MortRefiMonth][1]
+    MortOver = SoftMortgageAmmount - HardMortRemaining
     RefinancePayoff = [MortStartMonth + MortRefiMonth, MortOver]
     return MortgageCFs, RefinancePayoff
 
@@ -80,7 +80,7 @@ def PropertyTaxes(Price):
     PropTaxCfs = {}
     PropertyTaxRate = 0.01 #"Get from Database" #High but not Atypical Property Tax Rate
     for x in 123:
-        if X % 12 = 2:
+        if X % 12 == 2:
             PropTaxCfs[x] = Price*PropertyTaxRate
             PropTaxCfs[x+6] = Price*PropertyTaxRate
         else:
@@ -88,7 +88,7 @@ def PropertyTaxes(Price):
     return PropTaxCfs
 
 #Vacancy Test
-if MonthNum % 13 = 3:
+if MonthNum % 13 == 3:
     Vacancy = 0
 else:
     Vacancy = 1
