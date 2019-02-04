@@ -25,10 +25,10 @@ ERV = 0
 DiscountRate = 0.10 #"Get from Database"
 MonthlyDiscount = (1+DiscountRate)**(1/12)
 InsuranceRate = 0.00035 #"Get from Database"#Monthly Insurance Rate as a ratio of price
-PropManageRate = 0.2 #"Get from Database"
+PropManageRate = 0.15 #"Get from Database"
 BillRate = 0.10
 #Variables from database
-ExpectedRent = 500#"Total Proprety Rent from database" "Adjust if rent could be seasonally impacted"
+ExpectedRent = 1250#"Total Proprety Rent from database" "Adjust if rent could be seasonally impacted"
 #Starting Month
 CurrentMonth = datetime.datetime.now().month#"The Current Month"
 CurrentYear = datetime.datetime.now().year #"The Current Year"
@@ -90,7 +90,8 @@ def PropertyTaxes(Price):
 #Function Call
 #Iteration 1
 def StaticCFs(Price):
-    Mortify(Price)
+    MortgageCFs = Mortify(Price)[0]
+    RefinancePayoff = Mortify(Price)[1]
     CFs[2] = -(ExpectedRent*BillRate) - (InsuranceRate*Price) - MortgageCFs[2][0] #First mortgage month
 
     for month in range(3,124):
@@ -100,7 +101,7 @@ def StaticCFs(Price):
             CFs[month] = (ExpectedRent * (1 - PropManageRate - BillRate)) - (InsuranceRate*Price) - MortgageCFs[month][0]
 
     CFs[RefinancePayoff[0]] += RefinancePayoff[1] #Refinancing Payoff Adjustment
-
+    return CFs
 #Iteration 2 Taxes including property taxes
 #Non Monthly Cashflows
 #Quarterly Variables (Quarterly Tax Estimate Payments) April, June, September, January Take Annual Tax and Divide it by 4
@@ -109,7 +110,7 @@ def StaticCFs(Price):
 #Estimated tax rate of 24% as that bracket extends from $82,500 to $157,500 and I am likely to fall into a lower bracket
 #Include Property Tax CFs in this step
 TaxRate = 0.24
-
+StaticCFs(Price)
 def depreciation(price):
     assesment = price * 0.70
     annualdepr = assesment/27.5
