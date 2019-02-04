@@ -1,7 +1,7 @@
 """
 Robert Bauer
 New Realgorithm Test
-Running 2 Different Iterations Over CFs for Monthly & Semiannual Cashflows, Taxes (Will only include federal tax if getting a return)
+Running Different Iterations Over CFs for Monthly & Semiannual Cashflows, Taxes (Will only include federal tax if getting a return)
 """
 #import pymongo and set database targets
 import pymongo as pm
@@ -23,9 +23,12 @@ MOS = 0.20 #"Margin of Saftey off 'Market Price'/'Bank Appraisal Value' in order
 RenovationRate = 0.10 #"Get from Database"
 ERV = 0
 DiscountRate = 0.10 #"Get from Database"
+MonthlyDiscount = (1+DiscountRate)**(1/12)
 InsuranceRate = 0.00035 #"Get from Database"#Monthly Insurance Rate as a ratio of price
+PropManageRate = 0.2 #"Get from Database"
+BillRate = 0.10
 #Variables from database
-ExpectedRent = 500#"Total Proprety Rent from database"
+ExpectedRent = 500#"Total Proprety Rent from database" "Adjust if rent could be seasonally impacted"
 #Starting Month
 CurrentMonth = datetime.datetime.now().month#"The Current Month"
 CurrentYear = datetime.datetime.now().year #"The Current Year"
@@ -33,10 +36,7 @@ CurrentYear = datetime.datetime.now().year #"The Current Year"
 MonthNum = 1#"referenceing current iteration of CFs (something like x in CFs on the global iteration)" "Not a Variable"
 #Month being forecasted at the moment
 RentMonth = (MonthNum + CurrentMonth) % 12
-#Seasonal Penalties for Comming Year's Rent
-SeasonalRates = {1:0.9,2:0.95,3:0.95,4:0.95,5:1,6:1,7:1,8:0.95,9:0.95,10:0.95,11:0.9,12:0.9} #"Get from Database"
-#Seasonal Rate of month being forecasted
-SeasonalRate = SeasonalRates[RentMonth]
+
 #Mortgage Variables
 HardAPR = 0.10 #"Get from Database"
 SoftAPR = 0.048 #"Get from Database"
@@ -87,18 +87,27 @@ def PropertyTaxes(Price):
             PropTaxCfs[x] = 0
     return PropTaxCfs
 
-#Vacancy Test
-if MonthNum % 13 == 3:
-    Vacancy = 0
-else:
-    Vacancy = 1
+#Function Call
+#Iteration 1
+def StaticCFs(Price):
+    Mortify(Price)
+    CFs[2] = -(ExpectedRent*BillRate) - (InsuranceRate*Price) - MortgageCFs[2][0] #First mortgage month
 
-#Iteration 2 Taxes
+    for month in range(3,124):
+        if MonthNum % 13 == 3:
+            CFs[month] = -1*ExpectedRent*(PropManageRate + BillRate) - (InsuranceRate*Price) - MortgageCFs[month][0]
+        else:
+            CFs[month] = (ExpectedRent * (1 - PropManageRate - BillRate)) - (InsuranceRate*Price) - MortgageCFs[month][0]
+
+    CFs[RefinancePayoff[0]] += RefinancePayoff[1] #Refinancing Payoff Adjustment
+
+#Iteration 2 Taxes including property taxes
 #Non Monthly Cashflows
 #Quarterly Variables (Quarterly Tax Estimate Payments) April, June, September, January Take Annual Tax and Divide it by 4
 #Only make quarterly payments if you expect to owe $1000 over taxes on wages & normal income
 #Deductions (Depreciaton, Mortgage Interest, Expenses, Attorneys, property managers, accountants etc.)
 #Estimated tax rate of 24% as that bracket extends from $82,500 to $157,500 and I am likely to fall into a lower bracket
+#Include Property Tax CFs in this step
 TaxRate = 0.24
 
 def depreciation(price):
@@ -114,7 +123,8 @@ def depreciation(price):
 
 #Final Values
 #Present Value of CFs
+#Make a different script for evaluating MOS, Refi Limits and Viable Price
 for y in CFs:
-    ERV += CFs[y]/((1+DiscountRate)**y)
+    ERV += CFs[y]/(MonthlyDiscount**y)
 
 print(ERV)
