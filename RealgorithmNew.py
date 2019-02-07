@@ -80,7 +80,7 @@ def PropertyTaxes(Price):
     PropTaxCfs = {}
     PropertyTaxRate = 0.01 #"Get from Database" #High but not Atypical Property Tax Rate
     for x in 123:
-        if x % 12 == 2:
+        if x % 12 == 3:
             PropTaxCfs[x] = Price*PropertyTaxRate
             PropTaxCfs[x+6] = Price*PropertyTaxRate
         else:
@@ -110,7 +110,6 @@ def StaticCFs(Price):
 #Estimated tax rate of 24% as that bracket extends from $82,500 to $157,500 and I am likely to fall into a lower bracket
 #Include Property Tax CFs in this step
 TaxRate = 0.24
-StaticCFs(Price)
 def depreciation(price):
     assesment = price * 0.70
     annualdepr = assesment/27.5
@@ -119,8 +118,11 @@ def depreciation(price):
 #Annual taxes -Only count if you are going to get a return and you assume it is payed out in may
 #Calc should just be (Income-Expenses-Depreciation)=final if final > 0 then taxexpense = final*0.24 QuarterlyTax = taxexpense/4
 #if taxexpense is over $1000 or final over $4150
+PropTaxCFs = PropertyTaxes(Price)
+CFs = StaticCFs(Price)
 
-
+for month in range(3,124):
+    CFs[month] -= PropTaxCFs[month]
 
 #Final Values
 #Present Value of CFs
