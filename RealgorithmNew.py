@@ -28,14 +28,10 @@ InsuranceRate = 0.00035 #"Get from Database"#Monthly Insurance Rate as a ratio o
 PropManageRate = 0.15 #"Get from Database"
 BillRate = 0.10
 #Variables from database
-ExpectedRent = 1250#"Total Proprety Rent from database" "Adjust if rent could be seasonally impacted"
+#ExpectedRent = 1250#"Total Proprety Rent from database" "Adjust if rent could be seasonally impacted"
 #Starting Month
 CurrentMonth = datetime.datetime.now().month#"The Current Month"
 CurrentYear = datetime.datetime.now().year #"The Current Year"
-#Month Number of current forecasted month
-MonthNum = 1#"referenceing current iteration of CFs (something like x in CFs on the global iteration)" "Not a Variable"
-#Month being forecasted at the moment
-RentMonth = (MonthNum + CurrentMonth) % 12
 
 #Mortgage Variables
 HardAPR = 0.10 #"Get from Database"
@@ -44,22 +40,20 @@ MHAPR = HardAPR/12
 MSAPR = SoftAPR/12
 MortPoints = 0.02 #"Get from Database"
 MortFees = 0.05 #"Get From Database"
-HardMortYears = 5 #"Get from database"
-SoftMortYears = 30 #"Get from Database"
-DownPaymentPercentage = 0.10 #"Get from Database"
+HMortYears = 5 #"Get from database"
+SMortYears = 30 #"Get from Database"
+DownPayment = 0.10 #"Get from Database"
 SMIR = 0.005 #"Get from Datbase" #Soft Mortgage Insurance Rate
 
 #Set of Functions Called in Iteration
 
 #Mortgage Calculations Function NOT FINISHED NEEDS TO ITERATE OVER ITSELF
-def Mortify(Price):
-    MortStartMonth = 2 #"Get From Database"
-    MortRefiMonth = 6 #"Get From Database"
+def Mortify(Price,HardAPR,SoftAPR,MortPoints,MortFees,HMortYears,SMortYears,DownPayment,SMIR,MortStartMonth,MortRefiMonth,RenovationRate):
     MortgageCFs = {}
-    SoftMortgageAmmount = Price*(1-DownPaymentPercentage)
+    SoftMortgageAmmount = Price*(1-DownPayment)
     HardMortgageAmmount = Price*(1-MOS) + RenovationRate*Price
-    HardMortMonthly = HardMortgageAmmount*MHAPR/(1-((1+MHAPR)**(-12*HardMortYears)))
-    SoftMortMonthly = SoftMortgageAmmount*MSAPR/(1-((1+MSAPR)**(-12*SoftMortYears)))
+    HardMortMonthly = HardMortgageAmmount*MHAPR/(1-((1+MHAPR)**(-12*HMortYears)))
+    SoftMortMonthly = SoftMortgageAmmount*MSAPR/(1-((1+MSAPR)**(-12*SMortYears)))
     HardRemainingPrincipal = HardMortgageAmmount * (1+MortFees+MortPoints)
     SoftRemainingPrincipal = SoftMortgageAmmount * (1+MortFees+MortPoints)
     for x in range(MortStartMonth,(MortStartMonth+MortRefiMonth)):
@@ -89,18 +83,13 @@ def PropertyTaxes(Price):
 
 #Function Call
 #Iteration 1
-def StaticCFs(Price):
-    MortgageCFs = Mortify(Price)[0]
-    RefinancePayoff = Mortify(Price)[1]
-    CFs[2] = -(ExpectedRent*BillRate) - (InsuranceRate*Price) - MortgageCFs[2][0] #First mortgage month
-
+def StaticCFs(Price,Rent,BillRate,PropManageRate,InsuranceRate):
     for month in range(3,124):
-        if MonthNum % 13 == 3:
-            CFs[month] = -1*ExpectedRent*(PropManageRate + BillRate) - (InsuranceRate*Price) - MortgageCFs[month][0]
+        if month % 13 == 3:
+            CFs[month] = -1*Rent*(PropManageRate + BillRate) - (InsuranceRate*Price)
+            Rent = Rent*1.05
         else:
-            CFs[month] = (ExpectedRent * (1 - PropManageRate - BillRate)) - (InsuranceRate*Price) - MortgageCFs[month][0]
-
-    CFs[RefinancePayoff[0]] += RefinancePayoff[1] #Refinancing Payoff Adjustment
+            CFs[month] = (Rent * (1 - PropManageRate - BillRate)) - (InsuranceRate*Price)
     return CFs
 #Iteration 2 Taxes including property taxes
 #Non Monthly Cashflows
@@ -109,17 +98,26 @@ def StaticCFs(Price):
 #Deductions (Depreciaton, Mortgage Interest, Expenses, Attorneys, property managers, accountants etc.)
 #Estimated tax rate of 24% as that bracket extends from $82,500 to $157,500 and I am likely to fall into a lower bracket
 #Include Property Tax CFs in this step
+PropTaxCFs = PropertyTaxes(Price)
+CFs = StaticCFs(Price)
+
 TaxRate = 0.24
 def depreciation(price):
     assesment = price * 0.70
     annualdepr = assesment/27.5
     return annualdepr
 
+def TaxCFs(MortCFs,RentCFs,price,TaxRate):
+    depr = depreciation(price)
+    mort = Mortify(price)[0]
+    for month in
+    #First Each 12 months leading up to December and Payout in April if negative or Quarterly if Positive
+    #Income - Expenses - Mort Interest - Depreciation
+
+
 #Annual taxes -Only count if you are going to get a return and you assume it is payed out in may
 #Calc should just be (Income-Expenses-Depreciation)=final if final > 0 then taxexpense = final*0.24 QuarterlyTax = taxexpense/4
 #if taxexpense is over $1000 or final over $4150
-PropTaxCFs = PropertyTaxes(Price)
-CFs = StaticCFs(Price)
 
 for month in range(3,124):
     CFs[month] -= PropTaxCFs[month]
