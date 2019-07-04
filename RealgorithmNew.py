@@ -82,7 +82,7 @@ def PropertyTaxes(Price):
     return PropTaxCfs
 
 #Function Call
-#Iteration 1
+#Iteration 1 and counting for testing
 def StaticCFs(Price,Rent,BillRate,PropManageRate,InsuranceRate):
     for month in range(3,124):
         if month % 13 == 3:
@@ -110,7 +110,7 @@ def depreciation(price):
 def TaxCFs(MortCFs,RentCFs,price,TaxRate):
     depr = depreciation(price)
     mort = Mortify(price)[0]
-    for month in
+    """for month in """
     #First Each 12 months leading up to December and Payout in April if negative or Quarterly if Positive
     #Income - Expenses - Mort Interest - Depreciation
 
